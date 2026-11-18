@@ -443,7 +443,7 @@ body.highlight-on { padding-bottom:72px; }
           <th onclick="sortPrio('ชื่อโรงเรียน')">ชื่อโรงเรียน <span class="sorticon">&#x2195;</span></th>
           <th onclick="sortPrio('สังกัด')">สังกัด <span class="sorticon">&#x2195;</span></th>
           <th onclick="sortPrio('สถานะเดิม')">สถานะเดิม <span class="sorticon">&#x2195;</span></th>
-          <th onclick="sortPrio('เหตุผล')">เหตุผล / ความต้องการ <span class="sorticon">&#x2195;</span></th>
+          <th onclick="sortPrio('เหตุผล')" title="เรียงตามคะแนนขาดแคลนที่ AI แนะนำ">เหตุผล / ความต้องการ 🤖 <span class="sorticon">&#x2195;</span></th>
           <th>ใส่ลำดับใหม่</th>
           <th>หมายเหตุ / เหตุผล</th>
         </tr></thead>
@@ -792,7 +792,7 @@ let prioSortDir = 1;
 
 function sortPrio(key) {
   if (prioSortKey === key) prioSortDir = -prioSortDir;
-  else { prioSortKey = key; prioSortDir = 1; }
+  else { prioSortKey = key; prioSortDir = (key === 'เหตุผล') ? -1 : 1; }
   renderPrioritize();
 }
 
@@ -824,7 +824,10 @@ function renderPrioritize() {
   // เรียงตามคอลัมน์ที่เลือก (default: ลำดับในอำเภอ แล้วอำเภอ)
   filtered.sort((a,b) => {
     let av, bv;
-    if (prioSortKey === 'ลำดับ') {
+    if (prioSortKey === 'เหตุผล') {
+      av = Number(a['aiScore'])||0; bv = Number(b['aiScore'])||0;
+      if (av === bv) { av = Number(a['aiOrder'])||0; bv = Number(b['aiOrder'])||0; }
+    } else if (prioSortKey === 'ลำดับ') {
       const da = a['อำเภอ']||'', db = b['อำเภอ']||'';
       const distOrder = [...DISTRICTS, '(ยังไม่ระบุอำเภอ)'];
       const ia = distOrder.indexOf(da), ib = distOrder.indexOf(db);
@@ -1447,7 +1450,10 @@ function getFilteredPrioRows() {
   });
   filtered.sort((a,b) => {
     let av,bv;
-    if (prioSortKey === 'ลำดับ') {
+    if (prioSortKey === 'เหตุผล') {
+      av = Number(a['aiScore'])||0; bv = Number(b['aiScore'])||0;
+      if (av === bv) { av = Number(a['aiOrder'])||0; bv = Number(b['aiOrder'])||0; }
+    } else if (prioSortKey === 'ลำดับ') {
       const da=a['อำเภอ']||'', db=b['อำเภอ']||'';
       const distOrder=[...DISTRICTS,'(ยังไม่ระบุอำเภอ)'];
       const ia=distOrder.indexOf(da), ib=distOrder.indexOf(db);
