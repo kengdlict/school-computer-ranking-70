@@ -628,7 +628,7 @@ function init() {
     localStorage.setItem('dliict_schools_final_a', JSON.stringify(SCHOOLS_DATA));
     localStorage.setItem('dliict_rule_version', '64-70');
   }
-  const saved = localStorage.getItem('dliict_schools_v3');
+  const saved = localStorage.getItem('dliict_schools_v4');
   if (saved) {
     try {
       schools = JSON.parse(saved);
@@ -667,7 +667,7 @@ function init() {
 }
 
 function save() {
-  localStorage.setItem('dliict_schools_v3', JSON.stringify(schools));
+  localStorage.setItem('dliict_schools_v4', JSON.stringify(schools));
   showSave();
   updateProgress();
 }
