@@ -624,10 +624,10 @@ let schools = [];
 let currentTab = 'dashboard';
 
 function init() {
-  if (localStorage.getItem('dliict_rule_version') !== '64-70') {
-    localStorage.setItem('dliict_schools_final_a', JSON.stringify(SCHOOLS_DATA));
-    localStorage.setItem('dliict_rule_version', '64-70');
-  }
+  // ลบ key เก่าทั้งหมด (ข้อมูลปัจจุบันอยู่ใน v4)
+  try {
+    ['dliict_schools_final_a','dliict_schools_v2','dliict_schools_v3'].forEach(k => localStorage.removeItem(k));
+  } catch(e){}
   const saved = localStorage.getItem('dliict_schools_v4');
   if (saved) {
     try {
