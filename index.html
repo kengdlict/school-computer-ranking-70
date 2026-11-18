@@ -1514,7 +1514,9 @@ function getFilteredPrioRows() {
   });
   filtered.sort((a,b) => {
     let av,bv;
-    if (prioSortKey === 'เหตุผล') {
+    if (prioSortKey === 'จำนวนนักเรียน') {
+      av = Number(a['จำนวนนักเรียน'])||0; bv = Number(b['จำนวนนักเรียน'])||0;
+    } else if (prioSortKey === 'เหตุผล') {
       av = Number(a['aiScore'])||0; bv = Number(b['aiScore'])||0;
       if (av === bv) { av = Number(a['aiOrder'])||0; bv = Number(b['aiOrder'])||0; }
     } else if (prioSortKey === 'ลำดับ') {
