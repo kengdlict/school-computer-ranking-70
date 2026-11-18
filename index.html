@@ -302,6 +302,8 @@ tbody tr.active-row td:first-child { font-weight:800; }
 .reason-cell .rc-qty .qty-num { background:#eef4ff; color:var(--primary); padding:1px 7px; border-radius:8px; font-weight:800; font-variant-numeric:tabular-nums; }
 .reason-cell .rc-why { font-size:.8rem; color:var(--warn); background:var(--warnBg); padding:3px 8px; border-radius:8px; }
 body.dark .reason-cell .rc-qty .qty-num { background:#1e3a5f; color:var(--accent); }
+.reason-cell .rc-stu { display:inline-flex; align-items:center; gap:5px; font-size:.8rem; color:#0f766e; background:#f0fdfa; padding:3px 8px; border-radius:8px; font-weight:700; }
+body.dark .reason-cell .rc-stu { background:#042f2e; color:#5eead4; }
 .reason-cell .rc-ai { font-size:.78rem; color:#6d28d9; background:#f5f3ff; padding:3px 8px; border-radius:8px; font-weight:700; }
 body.dark .reason-cell .rc-ai { background:#2e1065; color:#c4b5fd; }
 
@@ -921,6 +923,7 @@ function renderPrioritize() {
               <span class="rc-main">${escapeHtml(reasonText(s))}</span>
             </div>
             ${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ ขอคอมสอน <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}
+            ${(Number(s['จำนวนนักเรียน'])>0)?'<div class="rc-stu">👥 นักเรียน <b>'+escapeHtml(String(s['จำนวนนักเรียน']))+'</b> คน · '+escapeHtml(String(s['จำนวนห้อง']||'0'))+' ห้อง</div>':''}
             ${Number(s['aiScore'])>0?'<div class="rc-ai">🤖 แนะนำ #'+escapeHtml(String(s['aiOrder']))+' · คะแนนขาดแคลน <b>'+escapeHtml(String(s['aiScore']))+'</b></div>':''}
             ${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}
           </div>
@@ -1044,7 +1047,7 @@ function renderReport() {
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
         <td class="t-status"><span class="badge badge-no">${escapeHtml(s['สถานะ'])}</span>${oldReceiveBadge(s)}</td>
-        <td style="max-width:260px"><div class="reason-cell"><div class="rc-head"><span class="rc-main">${escapeHtml(reasonText(s))}</span></div>${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ ขอคอมสอน <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}</div></td>
+        <td style="max-width:260px"><div class="reason-cell"><div class="rc-head"><span class="rc-main">${escapeHtml(reasonText(s))}</span></div>${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ ขอคอมสอน <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}${(Number(s['จำนวนนักเรียน'])>0)?'<div class="rc-stu">👥 นักเรียน <b>'+escapeHtml(String(s['จำนวนนักเรียน']))+'</b> คน</div>':''}${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}</div></td>
         <td>${escapeHtml(s['หมายเหตุ']||'—')}</td>
       </tr>
     `;
