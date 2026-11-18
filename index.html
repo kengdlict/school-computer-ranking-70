@@ -842,12 +842,11 @@ function renderPrioritize() {
         <td class="t-code">${escapeHtml(s['รหัสโรงเรียน'])}</td>
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
-        <td>${escapeHtml(s['สถานะเดิม']||'ไม่ได้รับจัดสรร')}</td>
+        <td>${escapeHtml(s['สถานะเดิม']||'ไม่ได้รับจัดสรร')}${oldReceiveBadge(s)}</td>
         <td style="max-width:300px">
           ${(String(s['จำนวนคอมสอน'])==='0')?'<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:800">เร่งด่วน</span> ':''}
-          ${escapeHtml(s['ความต้องการ']||'—')}
+          ${escapeHtml(reasonWithQty(s))}
           ${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<br><span style="color:#b45309;font-size:13px">เหตุผล: '+escapeHtml(s['เหตุผล'])+'</span>':''}
-          ${s['จำนวนคอมสอน']!==''?'<br><span style="font-size:12px;color:var(--muted)">ขอคอมสอน '+escapeHtml(s['จำนวนคอมสอน'])+' เครื่อง</span>':''}
         </td>
         <td><input type="number" class="prio-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(String(s['ลำดับ']||''))}" min="0" max="999" onchange="updatePriority(this)"></td>
         <td class="note-cell"><input type="text" class="note-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(s['หมายเหตุ'])}" placeholder="เหตุผล / หมายเหตุ"></td>
@@ -967,8 +966,8 @@ function renderReport() {
         <td class="t-code">${escapeHtml(s['รหัสโรงเรียน'])}</td>
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
-        <td class="t-status"><span class="badge badge-no">${escapeHtml(s['สถานะ'])}</span></td>
-        <td style="max-width:240px">${escapeHtml(reasonText(s))}</td>
+        <td class="t-status"><span class="badge badge-no">${escapeHtml(s['สถานะ'])}</span>${oldReceiveBadge(s)}</td>
+        <td style="max-width:260px">${escapeHtml(reasonWithQty(s))}</td>
         <td>${escapeHtml(s['หมายเหตุ']||'—')}</td>
       </tr>
     `;
@@ -1279,6 +1278,25 @@ function reasonText(sc){
   const w = String(sc['ความต้องการ']||'').trim();
   if (w && w !== '-' && w !== '—') return w;
   return '—';
+}
+function reasonWithQty(sc){
+  let t = reasonText(sc);
+  const parts=[];
+  const teach = String(sc['จำนวนคอมสอน']||'').trim();
+  const admin = String(sc['จำนวนคอมบริหาร']||'').trim();
+  if(teach!=='') parts.push('ขอคอมสอน '+teach+' เครื่อง');
+  if(admin!=='' && admin!=='0') parts.push('คอมบริหาร '+admin+' เครื่อง');
+  if(parts.length) t += ' • ' + parts.join(', ');
+  return t;
+}
+function oldReceiveBadge(sc){
+  const sd = String(sc['สถานะเดิม']||'');
+  if (/256[123]/.test(sd)) {
+    const yr = (sd.match(/256[123]/)||[''])[0];
+    const yy = yr.slice(2);
+    return ' <span style="display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:800;white-space:nowrap;margin-top:2px">🔁 เคยรับ '+yy+'</span>';
+  }
+  return '';
 }
 function escapeHtml(t){return String(t||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function escapeJs(t){return String(t||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
