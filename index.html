@@ -1861,20 +1861,36 @@ function cloudWriteAudit(entry) {
     .catch(e => console.warn('cloud write audit error', e));
 }
 
+function listenAuditCloud() {
+  if (!db || !cloudEnabled) return;
+  db.collection('audit').get().then(snap => {
+    const remote = [];
+    snap.forEach(doc => { const d = doc.data(); if (d && d.entry) remote.push(d.entry); });
+    if (remote.length > 0) {
+      const local = getAudit();
+      const seen = new Set(local.map(e => e.time + '|' + e.code));
+      const merged = local.slice();
+      remote.forEach(e => { if (!seen.has(e.time + '|' + e.code)) { merged.push(e); seen.add(e.time + '|' + e.code); } });
+      merged.sort((a,b) => String(b.time).localeCompare(String(a.time)));
+      setAudit(merged.slice(0,500));
+      if (currentTab === 'audit') renderAudit();
+    }
+  }).catch(e => console.warn('audit read error', e));
+}
+
 function initCloud() {
   if (!cloudReady || !db) { updateCloudBadge(); return; }
   db.collection('schools').get().then(snap => {
     if (snap.empty) {
-      // First time: upload initial data from local file
       const batch = db.batch();
       schools.forEach(sc => {
         const ref = db.collection('schools').doc(sc['รหัสโรงเรียน']);
         batch.set(ref, { data: sc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
       });
-      return batch.commit().then(() => listenCloud());
+      return batch.commit();
     }
-    return listenCloud();
-  }).catch(e => { console.warn('Firestore read error', e); updateCloudBadge(); });
+  }).catch(e => { console.warn('Firestore read error', e); })
+  .finally(() => { listenCloud(); listenAuditCloud(); });
 }
 
 function listenCloud() {
