@@ -846,7 +846,7 @@ function renderPrioritize() {
         <td style="max-width:300px">
           ${(String(s['จำนวนคอมสอน'])==='0')?'<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:800">เร่งด่วน</span> ':''}
           ${escapeHtml(s['ความต้องการ']||'—')}
-          ${(s['เหตุผล'] && String(s['เหตุผล']).trim()!=='-')?'<br><span style="color:#b45309;font-size:13px">เหตุผล: '+escapeHtml(s['เหตุผล'])+'</span>':''}
+          ${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<br><span style="color:#b45309;font-size:13px">เหตุผล: '+escapeHtml(s['เหตุผล'])+'</span>':''}
           ${s['จำนวนคอมสอน']!==''?'<br><span style="font-size:12px;color:var(--muted)">ขอคอมสอน '+escapeHtml(s['จำนวนคอมสอน'])+' เครื่อง</span>':''}
         </td>
         <td><input type="number" class="prio-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(String(s['ลำดับ']||''))}" min="0" max="999" onchange="updatePriority(this)"></td>
@@ -968,7 +968,7 @@ function renderReport() {
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
         <td class="t-status"><span class="badge badge-no">${escapeHtml(s['สถานะ'])}</span></td>
-        <td style="max-width:240px">${escapeHtml(s['เหตุผล']||s['ความต้องการ']||'—')}</td>
+        <td style="max-width:240px">${escapeHtml(reasonText(s))}</td>
         <td>${escapeHtml(s['หมายเหตุ']||'—')}</td>
       </tr>
     `;
@@ -1273,6 +1273,13 @@ function parseCSVLine(line) {
   return result;
 }
 
+function reasonText(sc){
+  const r = String(sc['เหตุผล']||'').trim();
+  if (r && r !== '-' && r !== '—') return r;
+  const w = String(sc['ความต้องการ']||'').trim();
+  if (w && w !== '-' && w !== '—') return w;
+  return '—';
+}
 function escapeHtml(t){return String(t||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function escapeJs(t){return String(t||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 
