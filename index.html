@@ -917,9 +917,9 @@ function renderPrioritize() {
 
   const tbody = document.getElementById('prioBody');
   if (!tbody) return;
-  tbody.innerHTML = '';
+  const __rows = [];
   filtered.forEach(s => {
-    tbody.innerHTML += `
+    __rows.push(`
       <tr>
         <td class="t-code">${escapeHtml(String(s['ลำดับ'] || '—'))}</td>
         <td class="t-dist">${escapeHtml(s['อำเภอ']||'(ยังไม่ระบุ)')}</td>
@@ -941,8 +941,9 @@ function renderPrioritize() {
         <td><input type="number" class="prio-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(String(s['ลำดับ']||''))}" min="0" max="999" onchange="updatePriority(this)"></td>
         <td class="note-cell"><input type="text" class="note-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(s['หมายเหตุ']||'')}" placeholder="หมายเหตุ / เหตุผล"></td>
       </tr>
-    `;
+    `);
   });
+  tbody.innerHTML = __rows.join("");
   updateActiveRow();
 }
 
@@ -1040,7 +1041,7 @@ function renderReport() {
   document.getElementById('rptSub').textContent = `สพป.นครพนม เขต 1 ${district ? '| อำเภอ ' + district : ''} ${new Date().toLocaleDateString('th-TH')}`;
 
   const tbody = document.getElementById('rptBody');
-  tbody.innerHTML = '';
+  const __rows = [];
   filtered.forEach((s, i) => {
     let prioClass = 'prio-other';
     if(s['ลำดับ']===1) prioClass='prio-1';
@@ -1049,7 +1050,7 @@ function renderReport() {
     else if(s['ลำดับ']===4) prioClass='prio-4';
     else if(s['ลำดับ']===5) prioClass='prio-5';
 
-    tbody.innerHTML += `
+    __rows.push(`
       <tr>
         <td><span class="badge ${prioClass}">#${escapeHtml(String(s['ลำดับ']))}</span></td>
         <td class="t-dist">${escapeHtml(s['อำเภอ']||'(ยังไม่ระบุ)')}</td>
@@ -1060,8 +1061,9 @@ function renderReport() {
         <td style="max-width:260px"><div class="reason-cell"><div class="rc-head"><span class="rc-main">${escapeHtml(reasonText(s))}</span></div>${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ จำนวนเครื่องคอมที่มีอยู่ <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}</div></td>
         <td><div class="ai-note">${aiText(s)}</div>${escapeHtml(s['หมายเหตุ']||'—')}</td>
       </tr>
-    `;
+    `);
   });
+  tbody.innerHTML = __rows.join("");
 }
 
 function printByDistrict() {
@@ -1190,7 +1192,7 @@ function exportReportCSV() {
 
 function renderManage() {
   const tbody = document.getElementById('manageTable');
-  tbody.innerHTML = '';
+  const __rows = [];
   const q = getSearch('manageSearch');
   let source = schools;
   if (q) source = schools.filter(s => {
@@ -1203,11 +1205,10 @@ function renderManage() {
     return a['ชื่อโรงเรียน'].localeCompare(b['ชื่อโรงเรียน']);
   });
   sorted.forEach(s => {
-    tbody.innerHTML += `
+    __rows.push(`
       <tr>
         <td class="t-code">${escapeHtml(s['รหัสโรงเรียน'])}</td>
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
-        <td style="text-align:right">${studentCell(s)}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
         <td class="t-dist">${escapeHtml(s['อำเภอ']||'—')}</td>
         <td style="text-align:right">${studentCell(s)}</td>
@@ -1217,9 +1218,10 @@ function renderManage() {
           <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteSchool('${escapeJs(escapeHtml(s['รหัสโรงเรียน']))}')">ลบ</button>
         </td>
       </tr>
-    `;
+    `);
   });
 
+  tbody.innerHTML = __rows.join("");
   const mDist = document.getElementById('mDistrict');
   mDist.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
   DISTRICTS.forEach(d => {
@@ -1440,7 +1442,7 @@ function renderAudit() {
   const arr = getAudit();
   const tbody = document.getElementById('auditBody');
   if (!tbody) return;
-  tbody.innerHTML = '';
+  const __rows = [];
   arr.forEach(e => {
     const t = new Date(e.time);
     const timeStr = t.toLocaleString('th-TH');
