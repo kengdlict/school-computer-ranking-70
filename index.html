@@ -610,7 +610,7 @@ body.highlight-on { padding-bottom:72px; }
       <div class="report-sub" id="summarySub">สพป.นครพนม เขต 1</div>
     </div>
     <div class="btn-group no-print" style="margin-bottom:10px">
-      <button class="btn primary" onclick="window.print()">🖨️ พิมพ์</button>
+      <button class="btn primary" onclick="printSummaryPDF()">🖨️ พิมพ์สรุปผล</button>
       <button class="btn primary" onclick="printSummaryPDF()">📑 พิมพ์สรุปผล PDF</button>
     </div>
     <div class="progress-big" id="summaryProgress">
@@ -1672,7 +1672,61 @@ function renderSummary() {
   loadSigs();
 }
 function printSummaryPDF() {
-  printByDistrict();
+  const ordered = schools.filter(x => (Number(x['ลำดับ'])||0) > 0);
+  if (ordered.length === 0) { alert('ยังไม่มีการจัดลำดับ'); return; }
+  const distOrder = [...DISTRICTS, '(ยังไม่ระบุอำเภอ)'];
+  const groups = {};
+  ordered.forEach(x => { const d=x['อำเภอ']||'(ยังไม่ระบุ)'; if(!groups[d])groups[d]=[]; groups[d].push(x); });
+  const names = Object.keys(groups).sort((a,b)=>{
+    const ia=distOrder.indexOf(a), ib=distOrder.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib) || String(a).localeCompare(String(b));
+  });
+  const esc = t => String(t||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const dateStr = new Date().toLocaleDateString('th-TH');
+  const sigs = (function(){ try{return JSON.parse(localStorage.getItem('dliict_sigs')||'{}');}catch(e){return {};} })();
+  let rows='';
+  names.forEach(d=>{
+    const list = groups[d].slice().sort((a,b)=>(Number(a['ลำดับ'])||0)-(Number(b['ลำดับ'])||0));
+    rows += '<h2>อำเภอ'+esc(d)+' ('+list.length+' โรงเรียน)</h2>';
+    rows += '<table><thead><tr><th style="width:6%">#</th><th style="width:13%">รหัส</th><th>ชื่อโรงเรียน</th><th style="width:15%">👥 นักเรียน</th><th style="width:24%">หมายเหตุ</th></tr></thead><tbody>';
+    list.forEach(x=>{
+      const sz = schoolSize(x['จำนวนนักเรียน']).label;
+      const stu = Number(x['จำนวนนักเรียน'])>0 ? Number(x['จำนวนนักเรียน'])+' คน ('+sz+')' : '—';
+      rows += '<tr><td style="text-align:center">'+esc(x['ลำดับ'])+'</td><td>'+esc(x['รหัสโรงเรียน'])+'</td><td>'+esc(x['ชื่อโรงเรียน'])+'</td><td>'+esc(stu)+'</td><td>'+esc(x['หมายเหตุ']||'')+'</td></tr>';
+    });
+    rows += '</tbody></table>';
+  });
+  const html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>สรุปผลการจัดลำดับ</title>'+
+    '<style>'+
+    '@page { size: A4 portrait; margin: 10mm; }'+
+    'body{font-family:"Sarabun",sans-serif;font-size:11px;color:#111;margin:0;line-height:1.35}'+
+    'h1{font-size:15px;margin:0 0 2px}h2{font-size:12px;margin:10px 0 3px;color:#0b3d91}'+
+    '.meta{font-size:10px;color:#555;margin-bottom:6px}'+
+    'table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px}'+
+    'th,td{border:1px solid #999;padding:2px 5px;text-align:left;vertical-align:top}'+
+    'th{background:#eee;font-weight:700}'+
+    'tr{page-break-inside:avoid}'+
+    '.sign{margin-top:12px;page-break-inside:avoid;font-size:10px}'+
+    '.sign td{border:none;padding:8px 4px 2px;width:33%}'+
+    '@media print{.no-print{display:none}}'+
+    '</style></head><body>'+
+    '<h1>สรุปผลการจัดลำดับจัดสรรคอมพิวเตอร์ — สพป.นครพนม เขต 1</h1>'+
+    '<div class="meta">วันที่ '+dateStr+' | รวม '+ordered.length+' โรงเรียน | เรียงลำดับแยกอำเภอ</div>'+
+    rows+
+    '<table class="sign"><tr>'+
+      '<td>................................<br>ประธานที่ประชุม<br>'+esc(sigs.sig1||'')+'</td>'+
+      '<td>................................<br>นายกสมาคมผู้บริหารฯ<br>'+esc(sigs.sig2||'')+'</td>'+
+      '<td>................................<br>ผู้บันทึก / กรรมการ<br>'+esc(sigs.sig3||'')+'</td>'+
+    '</tr></table>'+
+    '<div class="no-print" style="margin-top:12px;text-align:center">'+
+      '<button onclick="window.print()" style="padding:6px 14px;font-size:12px;cursor:pointer">พิมพ์ / บันทึก PDF</button> '+
+      '<button onclick="window.close()" style="padding:6px 14px;font-size:12px;cursor:pointer">ปิด</button>'+
+    '</div></body></html>';
+  const w = window.open('', '_blank');
+  if (!w) { alert('กรุณาอนุญาต Pop-up'); return; }
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{ w.focus(); w.print(); }, 400);
 }
 function saveSigs() {
   const v1 = document.getElementById('sig1'); const v2 = document.getElementById('sig2'); const v3 = document.getElementById('sig3');
