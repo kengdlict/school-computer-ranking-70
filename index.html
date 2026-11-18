@@ -664,11 +664,11 @@ let schools = [];
 let currentTab = 'dashboard';
 
 function init() {
-  // ลบ key เก่าทั้งหมด (ข้อมูลปัจจุบันอยู่ใน v4)
+  // ลบ key เก่าทั้งหมด (ข้อมูลปัจจุบันอยู่ใน v7)
   try {
-    ['dliict_schools_final_a','dliict_schools_v2','dliict_schools_v3','dliict_schools_v4','dliict_schools_v5'].forEach(k => localStorage.removeItem(k));
+    ['dliict_schools_final_a','dliict_schools_v2','dliict_schools_v3','dliict_schools_v4','dliict_schools_v5','dliict_schools_v6'].forEach(k => localStorage.removeItem(k));
   } catch(e){}
-  const saved = localStorage.getItem('dliict_schools_v6');
+  const saved = localStorage.getItem('dliict_schools_v7');
   if (saved) {
     try {
       schools = JSON.parse(saved);
@@ -695,13 +695,6 @@ function init() {
         'aiOrder': s['aiOrder']||0,
         'aiScore': s['aiScore']||0,
         'aiReason': s['aiReason']||'',
-      'จำนวนนักเรียน': s['จำนวนนักเรียน']||0,
-      'นักเรียนชาย': s['นักเรียนชาย']||0,
-      'นักเรียนหญิง': s['นักเรียนหญิง']||0,
-      'จำนวนห้อง': s['จำนวนห้อง']||0,
-      'นักเรียนก่อนประถม': s['นักเรียนก่อนประถม']||0,
-      'นักเรียนประถม': s['นักเรียนประถม']||0,
-      'นักเรียนมัธยม': s['นักเรียนมัธยม']||0,
         'จำนวนนักเรียน': s['จำนวนนักเรียน']||0,
         'นักเรียนชาย': s['นักเรียนชาย']||0,
         'นักเรียนหญิง': s['นักเรียนหญิง']||0,
@@ -723,7 +716,7 @@ function init() {
 }
 
 function save() {
-  localStorage.setItem('dliict_schools_v6', JSON.stringify(schools));
+  localStorage.setItem('dliict_schools_v7', JSON.stringify(schools));
   cloudWriteSchools();
   showSave();
   updateProgress();
@@ -1863,9 +1856,15 @@ function applyRemoteSchools(remote) {
       'เหตุผล': s['เหตุผล']||'',
       'aiOrder': s['aiOrder']||0,
       'aiScore': s['aiScore']||0,
-      'aiReason': s['aiReason']||''
+      'จำนวนนักเรียน': s['จำนวนนักเรียน']||0,
+      'นักเรียนชาย': s['นักเรียนชาย']||0,
+      'นักเรียนหญิง': s['นักเรียนหญิง']||0,
+      'จำนวนห้อง': s['จำนวนห้อง']||0,
+      'นักเรียนก่อนประถม': s['นักเรียนก่อนประถม']||0,
+      'นักเรียนประถม': s['นักเรียนประถม']||0,
+      'นักเรียนมัธยม': s['นักเรียนมัธยม']||0,
     }));
-    try { localStorage.setItem('dliict_schools_v6', JSON.stringify(schools)); } catch(e){}
+    try { localStorage.setItem('dliict_schools_v7', JSON.stringify(schools)); } catch(e){}
     setupDistrictSelects();
     renderDashboard(); renderPrioritize(); renderReport(); renderManage(); renderAudit(); renderSummary();
   } finally { applyingRemote = false; }
