@@ -294,6 +294,15 @@ body.dark .audit-table th { background:#0f172a; }
 /* ===== Presentation nav highlight ===== */
 tbody tr.active-row td:first-child { font-weight:800; }
 
+.reason-cell { display:flex; flex-direction:column; gap:4px; line-height:1.45; }
+.reason-cell .rc-head { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.reason-cell .rc-main { font-weight:800; color:var(--primary); font-size:.95rem; }
+.reason-cell .rc-urgent { display:inline-block; background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:8px; font-size:.72rem; font-weight:800; white-space:nowrap; }
+.reason-cell .rc-qty { display:inline-flex; align-items:center; gap:5px; font-size:.82rem; color:var(--muted); font-weight:600; }
+.reason-cell .rc-qty .qty-num { background:#eef4ff; color:var(--primary); padding:1px 7px; border-radius:8px; font-weight:800; font-variant-numeric:tabular-nums; }
+.reason-cell .rc-why { font-size:.8rem; color:var(--warn); background:var(--warnBg); padding:3px 8px; border-radius:8px; }
+body.dark .reason-cell .rc-qty .qty-num { background:#1e3a5f; color:var(--accent); }
+
 /* ===== Floating navigation bar ===== */
 .floating-nav { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; border-radius:14px; padding:8px 12px; display:none; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,.35); z-index:9998; max-width:calc(100vw - 32px); }
 .floating-nav.show { display:flex; }
@@ -844,9 +853,14 @@ function renderPrioritize() {
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
         <td>${escapeHtml(s['สถานะเดิม']||'ไม่ได้รับจัดสรร')}${oldReceiveBadge(s)}</td>
         <td style="max-width:300px">
-          ${(String(s['จำนวนคอมสอน'])==='0')?'<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:800">เร่งด่วน</span> ':''}
-          ${escapeHtml(reasonWithQty(s))}
-          ${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<br><span style="color:#b45309;font-size:13px">เหตุผล: '+escapeHtml(s['เหตุผล'])+'</span>':''}
+          <div class="reason-cell">
+            <div class="rc-head">
+              ${(String(s['จำนวนคอมสอน'])==='0')?'<span class="rc-urgent">เร่งด่วน</span>':''}
+              <span class="rc-main">${escapeHtml(reasonText(s))}</span>
+            </div>
+            ${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ ขอคอมสอน <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}
+            ${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}
+          </div>
         </td>
         <td><input type="number" class="prio-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(String(s['ลำดับ']||''))}" min="0" max="999" onchange="updatePriority(this)"></td>
         <td class="note-cell"><input type="text" class="note-input" data-code="${escapeHtml(s['รหัสโรงเรียน'])}" value="${escapeHtml(s['หมายเหตุ'])}" placeholder="เหตุผล / หมายเหตุ"></td>
@@ -967,7 +981,7 @@ function renderReport() {
         <td class="t-name">${escapeHtml(s['ชื่อโรงเรียน'])}</td>
         <td class="t-aff">${escapeHtml(s['สังกัด'])}</td>
         <td class="t-status"><span class="badge badge-no">${escapeHtml(s['สถานะ'])}</span>${oldReceiveBadge(s)}</td>
-        <td style="max-width:260px">${escapeHtml(reasonWithQty(s))}</td>
+        <td style="max-width:260px"><div class="reason-cell"><div class="rc-head"><span class="rc-main">${escapeHtml(reasonText(s))}</span></div>${(String(s['จำนวนคอมสอน'])!=='')?'<div class="rc-qty">🖥️ ขอคอมสอน <span class="qty-num">'+escapeHtml(s['จำนวนคอมสอน'])+'</span> เครื่อง</div>':''}${(String(s['เหตุผล']||'').trim() && String(s['เหตุผล']).trim()!=='-' && String(s['เหตุผล']).trim()!=='—')?'<div class="rc-why">📝 '+escapeHtml(s['เหตุผล'])+'</div>':''}</div></td>
         <td>${escapeHtml(s['หมายเหตุ']||'—')}</td>
       </tr>
     `;
